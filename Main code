@@ -1,0 +1,172 @@
+import time
+import discord
+from discord.ext import commands
+import asyncio
+import datetime
+print("Hello this is kyes perdonal bot only.")
+print("------------------------------------------------------")
+token = input("Token: ")
+if token == "":
+	print("Non-valid")
+else:	
+	import os
+	clear = lambda: os.system('clear')
+	clear()
+	start_time = time.time()
+	
+	print("Starting main build")
+	time.sleep(1)
+	print("testing purposes")
+	
+	async def is_owner(ctx):
+		return ctx.author.id == 283916794018660353
+	
+	def user_is_me(ctx):
+		return ctx.message.author.id == "283916794018660353"
+	
+	
+	bot = commands.Bot(command_prefix=('!'))
+	
+	#events
+	@bot.event
+	async def on_ready():
+		print("Bots name:", bot.user.name)
+		print("Bots ID:", bot.user.id)
+		print("Bots token:", token)
+		print("Im in:", len(bot.guilds), "servers")
+	@bot.event
+	async def on_guild_join(guild):
+		channel("711198526201266186")
+		await channel.send(f"I just joined a new server, im now in {ctx.guilds} servers")
+	@bot.event
+	async def on_member_join():
+		guild = ctx.guild
+		channel = discord.utils.get(guild.voice_channels, name="vc")
+		members = ctx,guild.members
+		await channel.edit(name = guild.member_count)
+		
+		
+	
+	#---
+	@bot.command() 
+	async def suggest(ctx, *, suggestion):
+		await ctx.send("Suggested")
+		print ("sent by:", ctx.author, "suggestion:", suggestion)
+		user = bot.get_user(283916794018660353)
+		await user.send(f"Suggestion: {suggestion} sent by: {str(ctx.author)}")
+	
+	@bot.command()
+	@commands.has_permissions(ban_members=True)
+	async def ban(ctx, member: discord.Member, *, reason):
+		await member.send(f"You was banned from: {ctx.guild} for: {reason}")
+		await member.ban()
+		print(Member, "was banned")
+		print("!ban was used by:", ctx.message.author)
+	
+	@bot.command()
+	@commands.has_permissions(kick_members=True)
+	async def kick(ctx, member: discord.Member, *, Reason):
+		await member.send(f"You was kicked from: {ctx.guild} Reason: {reason}")
+		await member.kick(reason=Reason)
+		print(Member, "Was kicked by:", ctx.author)
+		print("!kick was used by:", ctx.message.author)
+		
+	@bot.command(pass_context = True)
+	@commands.check(is_owner)
+	async def clearconsole(ctx):
+		clear()
+		await ctx.send("Cleared!")
+		print("!clearconsole was used by:", ctx.message.author)
+			#time commands
+	@bot.command()
+	async def runtime(ctx):
+		current_time = time.time()
+		diffrence = int(round(current_time - start_time))
+		text = str(datetime.timedelta(seconds=diffrence))
+		print("Bots runtime:", text)
+		await ctx.send(text)
+		print("!runtime was used by:", ctx.message.author)
+			
+	@bot.command()
+	async def update(ctx):
+		await ctx.send("Temporarily Disabled")
+		
+	@bot.command()
+	@commands.check(is_owner)
+	async def pban(ctx, member: discord.Member):
+		await ctx.message.delete()
+		await member.ban()
+		
+		#-
+	#info
+	@bot.command()
+	@commands.has_permissions(administrator=True)
+	async def userinfo(ctx, *, member: discord.Member):
+		fmt = '{0} joined on {0.joined_at} and has {1} roles'
+		await ctx.send(fmt.format(member, len(member.roles)))
+		
+	@bot.command()
+	async def profilepic(ctx, member: discord.Member):
+		embed=discord.Embed(title=f"{member.display_name}'s Profile Pic", color=0x3498db)
+		embed.add_field(name="Helping members!", value="ModerationBot")
+		embed.set_thumbnail(url=member.avatar_url)
+		embed.set_footer(text="Credits to Gnome!#6669")
+ 
+		await ctx.send(embed=embed)
+	@bot.command()
+	async def credits(ctx):
+		embed=discord.Embed(title="Credits list", color=0x3498db)
+		embed.add_field(name="Gnome#6669 helping with coding", value="kye developer")
+		embed.set_footer(text="Thanks gnome, for helping me code this bot")
+		
+		await ctx.send(embed=embed)
+		
+	@bot.command()
+	@commands.has_permissions(administrator=True)
+	async def mute(ctx, member: discord.Member, *, reason):
+		guild = ctx.guild
+		role = discord.utils.get(guild.roles, name="muted")
+		await member.send(f"You was muted in {ctx.guild} By: {ctx.message.author}")
+		await member.edit(roles=[])
+		await member.add_roles(role, reason)
+		
+	@bot.command()
+	@commands.check(is_owner)
+	async def dm(ctx, member: discord.Member, * text: str):
+		await member.send(f"Message from developer: {text}")
+	@bot.command()
+	async def servers(ctx):
+		await ctx.send(f"Im in {len(bot.guilds)} servers")
+	@bot.command()
+	async def report(ctx, reason, member: discord.Member):
+		guild = ctx.guild
+		owner = guild.owner
+		await owner.send(f"Report: {reason} By: {ctx.message.author}")
+		await ctx.message.delete()
+		
+		
+	
+	#error checks
+	@userinfo.error
+	async def userinfo_error(ctx, error):
+		if isinstance(error, commands.BadArgument):
+			await ctx.send("Couldn't find that user!")
+	@ban.error
+	async def ban_error(ctx, error):
+		if isinstance(error, commands.BadArgument):
+			await ctx.send("Couldn't find that user or, you dont have the required permissions.'")
+			print("error was done by:", ctx.message.author, "Command: ban")
+	@profilepic.error
+	async def profilepic_error(ctx, error):
+		if isinstance(error, commands.BadArgument):
+			await ctx.send("User doen't exist! try enter valid user")
+	@mute.error
+	async def mute_error(ctx, error):
+		if isinstance(error, commands.BafArgument):
+			await ctx.send("Either you dont have role called 'muted' or you dont have the righr permissions")
+	
+	
+		
+	
+	bot.run(token)
+	
